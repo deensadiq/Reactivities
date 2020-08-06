@@ -1,0 +1,16 @@
+
+> fibers@5.0.0 install G:\Projects\Code\DotNetCoreAndReact\Reactivities\node_modules\fibers
+> node build.js || nodejs build.js
+
+`win32-x64-72` exists; testing
+Binary is fine; exiting
+
+> node-sass@4.0.0 install G:\Projects\Code\DotNetCoreAndReact\Reactivities\node_modules\node-sass
+> node scripts/install.js
+
+Downloading binary from https://github.com/sass/node-sass/releases/download/v4.0.0/win32-x64-72_binding.node
+
+> node-sass@4.0.0 postinstall G:\Projects\Code\DotNetCoreAndReact\Reactivities\node_modules\node-sass
+> node scripts/build.js
+
+Building: C:\Program Files\nodejs\node.exe G:\Projects\Code\DotNetCoreAndReact\Reactivities\node_modules\node-gyp\bin\node-gyp.js rebuild --verbose --libsass_ext= --libsass_cflags= --libsass_ldflags= --libsass_library=
