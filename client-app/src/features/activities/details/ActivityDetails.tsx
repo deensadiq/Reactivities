@@ -2,13 +2,13 @@ import React from "react";
 import { Card, Image, Button } from "semantic-ui-react";
 import { IActivity } from "../../../app/models/activity";
 
-interface IPrps {
+interface IProps {
   activity: IActivity;
   setEditMode: (editMode: boolean) => void;
   setSelectedActivity: (activity: IActivity | null) => void;
 }
 
-const ActivityDetails: React.FC<IPrps> = ({
+const ActivityDetails: React.FC<IProps> = ({
   activity,
   setEditMode,
   setSelectedActivity,
