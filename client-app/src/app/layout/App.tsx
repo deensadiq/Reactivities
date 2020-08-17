@@ -5,6 +5,7 @@ import ActivityDashboard from "../../features/activities/dashboard/ActivityDashb
 import LoadingComponent from "./LoadingComponent";
 import ActivityStore from "../stores/activityStore";
 import { configure } from "mobx";
+import { observer } from "mobx-react-lite";
 
 configure({"enforceActions": "always"});
 
@@ -27,4 +28,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default observer(App);
