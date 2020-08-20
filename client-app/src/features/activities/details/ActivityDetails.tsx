@@ -1,37 +1,49 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Card, Image, Button } from "semantic-ui-react";
 import ActivityStore from "../../../app/stores/activityStore";
 import { observer } from "mobx-react-lite";
+import { RouteComponentProps, Link } from "react-router-dom";
+import LoadingComponent from "../../../app/layout/LoadingComponent";
 
-const ActivityDetails: React.FC = () => {
+interface DetailParams {
+  id: string;
+}
+
+const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({match, history}) => {
 
   const activityStore = useContext(ActivityStore);
-  const {selectedActivity: activity, selectActivity, openEditForm} = activityStore;
+  const { activity, loadActivity, loadingInitial} = activityStore;
+
+  useEffect(() => {
+    loadActivity(match.params.id);
+  }, [loadActivity, loadingInitial, activity, match])
+
+  if (!activity || loadingInitial) return <LoadingComponent content="loading activity..." /> 
 
   return (
     <Card fluid>
       <Image
-        src={`/assets/categoryImages/${activity!.category}.jpg`}
+        src={`/assets/categoryImages/${activity.category}.jpg`}
         wrapped
         ui={false}
       />
       <Card.Content>
-        <Card.Header>{activity!.title}</Card.Header>
+        <Card.Header>{activity.title}</Card.Header>
         <Card.Meta>
-          <span>{activity!.date}</span>
+          <span>{activity.date}</span>
         </Card.Meta>
-        <Card.Description>{activity!.description}</Card.Description>
+        <Card.Description>{activity.description}</Card.Description>
       </Card.Content>
       <Card.Content extra>
         <Button.Group widths={2}>
           <Button
-            onClick={() => openEditForm(activity!.id)}
+            as={Link} to={`/manageActivity/${activity.id}`}
             basic
             color="blue"
             content="Edit"
           />
           <Button
-            onClick={() => selectActivity('')}
+            onClick={() => history.push("/activities")}
             basic
             color="grey"
             content="Cancel"
