@@ -25,7 +25,7 @@ const LoginForm = () => {
         }))
       }
       validate={validate}
-      render={({ handleSubmit, submitting, form, submitError, invalid, pristine, dirtySinceLastSubmit }) => (
+      render={({ handleSubmit, submitting, submitError, invalid, pristine, dirtySinceLastSubmit }) => (
         <Form onSubmit={() => handleSubmit()} error>
           <Header
           as="h2"
