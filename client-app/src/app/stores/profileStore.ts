@@ -1,7 +1,7 @@
 import { action, computed, observable, runInAction } from "mobx";
 import { toast } from "react-toastify";
 import agent from "../api/agent";
-import { IPhoto, IProfile } from "../models/profile";
+import { IPhoto, IProfile, IProfileFormValues } from "../models/profile";
 import RootStore from "./rootStore";
 
 export default class ProfileStore {
@@ -12,6 +12,7 @@ export default class ProfileStore {
 
   @observable profile: IProfile | null = null;
   @observable loadingProfile = true;
+  @observable loadingUpdateProfile = false;
   @observable uploadingPhoto = false;
   @observable deletingPhoto = false;
   @observable loading = false;
@@ -39,6 +40,24 @@ export default class ProfileStore {
       });
     }
   };
+
+  @action updateProfile = async (profile: IProfileFormValues) => {
+    this.loadingUpdateProfile = true;
+    try {
+      await agent.Profiles.update(profile);
+      runInAction(() => {
+        this.rootStore.userStore.user!.displayName = profile.displayName;
+        this.profile!.displayName = profile.displayName;
+        this.profile!.bio = profile.bio;
+        this.loadingUpdateProfile = false;
+      })
+    } catch(error) {
+      console.log(error);
+      runInAction(() => {
+        this.loadingUpdateProfile = false;
+      })
+    }
+  }
 
   @action uploadPhoto = async (file: Blob) => {
     this.uploadingPhoto = true;
