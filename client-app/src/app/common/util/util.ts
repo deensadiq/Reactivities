@@ -14,7 +14,9 @@ export const combinedDateAndTime = (date: Date, time: Date) => {
 
 export const setActivityProps = (activity: IActivity, user: IUser) => {
   activity.date = new Date(activity.date);
-  activity.isGoing = activity.attendees.some((a) => a.username === user.username);
+  activity.isGoing = activity.attendees.some(
+    (a) => a.username === user.username
+  );
   activity.isHost = activity.attendees.some(
     (a) => a.username === user.username && a.isHost === true
   );
@@ -22,11 +24,14 @@ export const setActivityProps = (activity: IActivity, user: IUser) => {
   return activity;
 };
 
-export const createAttendee = (user: IUser) : IAttendee => {
+export const createAttendee = (user: IUser): IAttendee => {
   return {
     username: user.username,
     displayName: user.displayName,
     image: user.image!,
-    isHost: false
+    isHost: false,
+    following: user.following,
+    followersCount: user.followerCount,
+    followingCount: user.followingCount,
   };
 };

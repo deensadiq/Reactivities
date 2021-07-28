@@ -39,10 +39,11 @@ namespace Application.Profiles
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
+                var currentUsername = _userAccessor.GetCurrentUsername();
                 var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == _userAccessor.GetCurrentUsername());
 
                 if (user == null)
-                    throw new RestException(HttpStatusCode.BadRequest, new { User = "No Login User Found."});
+                    throw new RestException(HttpStatusCode.BadRequest, new { User = "No Login User Found." });
 
                 user.DisplayName = request.DisplayName;
                 user.Bio = request.Bio;

@@ -48,6 +48,8 @@ namespace Application.Activities
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
+                var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == _userAccessor.GetCurrentUsername());
+
                 var activity = new Activity()
                 {
                     Id = request.Id,
@@ -59,18 +61,19 @@ namespace Application.Activities
                     Venue = request.Venue
                 };
 
-                _context.Activities.Add(activity);
-
-                var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == _userAccessor.GetCurrentUsername());
-
-                var attendee = new UserActivity() {
+                var attendee = new UserActivity()
+                {
                     AppUser = user,
                     Activity = activity,
                     IsHost = true,
                     DateJoined = DateTime.Now
                 };
 
-                _context.UserActivities.Add(attendee);
+                // _context.UserActivities.Add(attendee);
+
+                activity.UserActivities.Add(attendee);
+
+                _context.Activities.Add(activity);
 
                 var success = await _context.SaveChangesAsync() > 0;
 

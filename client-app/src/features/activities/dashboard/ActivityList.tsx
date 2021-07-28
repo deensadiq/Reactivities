@@ -13,7 +13,7 @@ const ActivityList: React.FC = () => {
     <Fragment>
       {activitiesByDate.map(([group, activities]) => (
         <Fragment key={group}>
-          <Label size="large" color="blue">
+          <Label size="large" color="teal">
             {format(group, "eeee do MMMM, YYYY")}
           </Label>
           <Item.Group divided>

@@ -46,7 +46,7 @@ const ProfilePhotos = () => {
           ) : (
             <Card.Group itemsPerRow={5}>
               {profile &&
-                profile.photos.map((photo) => (
+                profile!.photos!.map((photo) => (
                   <Card key={photo.id}>
                     <Image src={photo.url} />
                     {IsCurrentUser && (
@@ -57,7 +57,7 @@ const ProfilePhotos = () => {
                           disabled={photo.isMain}
                           onClick={(e) => {
                             setMainPhoto(photo);
-                            setTarget(e.currentTarget.name)
+                            setTarget(e.currentTarget.name);
                           }}
                           basic
                           color="teal"

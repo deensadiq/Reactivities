@@ -32,21 +32,23 @@ namespace Application.Photos
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == _userAccessor.GetCurrentUsername());
+                var user = await _context.Users
+                                        .Include(x => x.Photos)
+                                        .SingleOrDefaultAsync(x => x.UserName == _userAccessor.GetCurrentUsername());
 
                 var photo = user.Photos.FirstOrDefault(x => x.Id == request.Id);
 
                 if (photo == null)
-                    throw new RestException(HttpStatusCode.NotFound, new { Photo = "Not Found."});
+                    throw new RestException(HttpStatusCode.NotFound, new { Photo = "Not Found." });
 
                 if (photo.IsMain == true)
-                    throw new RestException(HttpStatusCode.BadRequest, new { Photo = "You can not delete the main image."});
+                    throw new RestException(HttpStatusCode.BadRequest, new { Photo = "You can not delete the main image." });
 
                 var result = _photoAccessor.DeletePhoto(photo.Id);
 
                 if (result == null)
-                    throw new RestException(HttpStatusCode.NotFound, new { Photo = "Poblem deleting photo."});
-                
+                    throw new RestException(HttpStatusCode.NotFound, new { Photo = "Poblem deleting photo." });
+
                 user.Photos.Remove(photo);
 
                 var success = await _context.SaveChangesAsync() > 0;

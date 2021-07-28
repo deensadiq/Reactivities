@@ -8,6 +8,7 @@ using Domain;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.User
@@ -32,20 +33,21 @@ namespace Application.User
 
         public class Handler : IRequestHandler<Query, User>
         {
-            private readonly UserManager<AppUser> _userManager;
             private readonly SignInManager<AppUser> _signInManager;
             private readonly IJwtGenerator _jwtGenerator;
-            public Handler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IJwtGenerator jwtGenerator)
+            private readonly DataContext _context;
+            public Handler(DataContext context, SignInManager<AppUser> signInManager, IJwtGenerator jwtGenerator)
             {
+                _context = context;
                 _jwtGenerator = jwtGenerator;
                 _signInManager = signInManager;
-                _userManager = userManager;
             }
 
             public async Task<User> Handle(Query request, CancellationToken cancellationToken)
             {
                 // handler loggic goes here
-                var user = await _userManager.FindByEmailAsync(request.Email);
+                var user = await _context.Users.Include(x => x.Photos)
+                                               .FirstOrDefaultAsync(x => x.NormalizedEmail == request.Email.ToUpper());
 
                 if (user == null)
                     throw new RestException(HttpStatusCode.Unauthorized);

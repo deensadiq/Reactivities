@@ -16,7 +16,7 @@ const ActivityListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
             <Item.Image
               size="tiny"
               circular
-              style={{marginBottom: 3}}
+              style={{ marginBottom: 3 }}
               src={host.image || "/assets/user.png"}
             />
             <Item.Content>
@@ -64,7 +64,7 @@ const ActivityListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
           to={`/activities/${activity.id}`}
           floated="right"
           content="View"
-          color="blue"
+          color="teal"
         />
       </Segment>
     </Segment.Group>

@@ -8,7 +8,7 @@ namespace Persistence.EntityConfiguration
     {
         public void Configure(EntityTypeBuilder<UserActivity> builder)
         {
-            builder.HasKey(ua => new {ua.AppUserId, ua.ActivityId});
+            builder.HasKey(ua => new { ua.AppUserId, ua.ActivityId });
 
             builder.HasOne(u => u.AppUser)
             .WithMany(a => a.UserActivities)

@@ -29,14 +29,14 @@ namespace Infrastructure.Security
 
             var activityId = Guid.Parse(_httpContextAccessor.HttpContext.Request.RouteValues?
                             .SingleOrDefault(x => x.Key == "id").Value.ToString());
-            
+
             var activity = _context.Activities.FindAsync(activityId).Result;
 
             var host = activity.UserActivities.FirstOrDefault(x => x.IsHost == true);
 
             if (host?.AppUser.UserName == currentUsername)
                 context.Succeed(requirement);
-            
+
             return Task.CompletedTask;
         }
     }

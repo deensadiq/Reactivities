@@ -9,12 +9,8 @@ import { formatDistance } from "date-fns";
 
 const ActivityDetailChat = () => {
   const rootStore = useContext(RootStoreContext);
-  const {
-    createHubConnection,
-    stopHubConnection,
-    activity,
-    createComment,
-  } = rootStore.activityStore;
+  const { createHubConnection, stopHubConnection, activity, createComment } =
+    rootStore.activityStore;
 
   useEffect(() => {
     createHubConnection(activity!.id);
@@ -22,7 +18,7 @@ const ActivityDetailChat = () => {
     return () => {
       stopHubConnection();
     };
-  }, [createHubConnection, stopHubConnection, activity!.id]);
+  }, [createHubConnection, stopHubConnection, activity, activity!.id]);
 
   return (
     <Fragment>

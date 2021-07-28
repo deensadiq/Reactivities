@@ -1,3 +1,4 @@
+import { PagingParams } from "./../models/pagination";
 import { observable, action, computed, runInAction } from "mobx";
 import { SyntheticEvent } from "react";
 import { IActivity } from "../models/activity";
@@ -11,6 +12,7 @@ import {
   HubConnectionBuilder,
   LogLevel,
 } from "@microsoft/signalr";
+import { Pagination } from "../models/pagination";
 
 export default class ActivityStore {
   rootStore: RootStore;
@@ -25,6 +27,8 @@ export default class ActivityStore {
   @observable target = "";
   @observable loading = false;
   @observable.ref hubConnection: HubConnection | null = null;
+  @observable pagination: Pagination | null = null;
+  @observable pagingParams = new PagingParams();
 
   @action createHubConnection = (activityId: string) => {
     this.hubConnection = new HubConnectionBuilder()
@@ -77,6 +81,21 @@ export default class ActivityStore {
     );
   }
 
+  @action setPagination = (pagination: Pagination) => {
+    this.pagination = pagination;
+  };
+
+  @action setPagingParams = (pagingParams: PagingParams) => {
+    this.pagingParams = pagingParams;
+  };
+
+  @computed get axiosParams() {
+    const params = new URLSearchParams();
+    params.append("pageNumber", this.pagingParams.pageNumber.toString());
+    params.append("pageSize", this.pagingParams.pageSize.toString());
+    return params;
+  }
+
   groupActivitiesByDate(activities: IActivity[]) {
     const sortedActivities = activities.sort(
       (a, b) => a.date!.getTime() - b.date!.getTime()
@@ -95,14 +114,15 @@ export default class ActivityStore {
   @action loadAcivities = async () => {
     this.loadingInitial = true;
     try {
-      const activities = await agent.Activities.list();
+      const result = await agent.Activities.list(this.axiosParams);
       runInAction("loading activities", () => {
-        activities.forEach((activity) => {
+        result.data.forEach((activity) => {
           setActivityProps(activity, this.rootStore.userStore.user!);
           this.activityRegistry.set(activity.id, activity);
         });
         this.loadingInitial = false;
       });
+      this.setPagination(result.pagination);
     } catch (error) {
       runInAction("load activity error", () => {
         this.loadingInitial = false;

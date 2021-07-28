@@ -1,27 +1,52 @@
-import React, { useContext, useEffect } from "react";
-import { Grid } from "semantic-ui-react";
+import React, { useContext, useEffect, useState } from "react";
+import { Grid, Loader } from "semantic-ui-react";
 import ActivityList from "./ActivityList";
 import { observer } from "mobx-react-lite";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { RootStoreContext } from "../../../app/stores/rootStore";
+import { PagingParams } from "../../../app/models/pagination";
+import ActivityFilter from "./ActivityFilter";
+import InfiniteScroll from "react-infinite-scroller";
 
 const ActivityDashboard: React.FC = () => {
   const rootStore = useContext(RootStoreContext);
-  const {loadAcivities, loadingInitial} = rootStore.activityStore;
+  const { loadAcivities, loadingInitial, setPagingParams, pagination } =
+    rootStore.activityStore;
+  const [loadingNext, setLoadingNext] = useState(false);
+
+  function handleNext() {
+    setLoadingNext(true);
+    setPagingParams(new PagingParams(pagination!.currentPage + 1));
+    loadAcivities().then(() => setLoadingNext(false));
+  }
 
   useEffect(() => {
     loadAcivities();
   }, [loadAcivities]);
 
-  if (loadingInitial)
+  if (loadingInitial && !loadingNext)
     return <LoadingComponent content="Loading activities..." />;
   return (
     <Grid>
-      <Grid.Column width={10}>
-        <ActivityList />
+      <Grid.Column width={11}>
+        <InfiniteScroll
+          pageStart={0}
+          loadMore={handleNext}
+          hasMore={
+            !loadingNext &&
+            !!pagination &&
+            pagination.currentPage < pagination.totalPages
+          }
+          initialLoad={false}
+        >
+          <ActivityList />
+        </InfiniteScroll>
       </Grid.Column>
-      <Grid.Column width={6}>
-        <h2>Activity filters</h2>
+      <Grid.Column width={5}>
+        <ActivityFilter />
+      </Grid.Column>
+      <Grid.Column width={11}>
+        <Loader active={loadingNext} />
       </Grid.Column>
     </Grid>
   );

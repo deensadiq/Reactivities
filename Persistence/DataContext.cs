@@ -9,7 +9,7 @@ namespace Persistence
     public class DataContext : IdentityDbContext<AppUser>
     {
         public DataContext(DbContextOptions options) : base(options)
-        {            
+        {
         }
 
         public DbSet<Value> Values { get; set; }
@@ -17,16 +17,17 @@ namespace Persistence
         public DbSet<UserActivity> UserActivities { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<UserFollowing> UserFollowings { get; set; }
 
-        protected override  void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            
+
             builder.Entity<Value>()
             .HasData(
-                new Value() { Id = 1, Name = "Value 101"},
-                new Value() { Id = 2, Name = "Value 102"},
-                new Value() { Id = 3, Name = "Value 103"}
+                new Value() { Id = 1, Name = "Value 101" },
+                new Value() { Id = 2, Name = "Value 102" },
+                new Value() { Id = 3, Name = "Value 103" }
             );
 
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());

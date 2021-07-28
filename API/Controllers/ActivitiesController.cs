@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using API.Extensions;
 using Application.Activities;
 using Application.Activities.Dtos;
+using Application.Core;
 using Domain;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -13,9 +15,12 @@ namespace API.Controllers
     public class ActivitiesController : BaseController
     {
         [HttpGet]
-        public async Task<ActionResult<List<ActivityDto>>> List()
+        public async Task<ActionResult<PageList<ActivityDto>>> List([FromQuery] ActivityParams param)
         {
-            return await Mediator.Send(new List.Query());
+            var result = await Mediator.Send(new List.Query() { Params = param });
+            Response.AddPaginationHeader(result.CurrentPage, result.PageSize, result.TotalCount, result.TotalPages);
+            // Response.AddSortHeader("Date", "ASC");
+            return result;
         }
 
         [HttpGet("{id}")]

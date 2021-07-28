@@ -7,6 +7,8 @@ using Application.Interfaces;
 using Domain;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Persistence;
 
 namespace Application.User
 {
@@ -17,25 +19,28 @@ namespace Application.User
 
         public class Handler : IRequestHandler<Query, User>
         {
-            private readonly UserManager<AppUser> _userManager;
             private readonly IJwtGenerator _jwtGenerator;
             private readonly IUserAccessor _userAccessor;
-            public Handler(UserManager<AppUser> userManager, IJwtGenerator jwtGenerator, IUserAccessor userAccessor)
+            private readonly DataContext _context;
+            public Handler(DataContext context, IJwtGenerator jwtGenerator, IUserAccessor userAccessor)
             {
+                _context = context;
                 _userAccessor = userAccessor;
                 _jwtGenerator = jwtGenerator;
-                _userManager = userManager;
             }
 
             public async Task<User> Handle(Query request, CancellationToken cancellationToken)
             {
                 // handler loggic goes here
-                var user = await _userManager.FindByNameAsync(_userAccessor.GetCurrentUsername());
+                var user = await _context.Users
+                                        .Include(x => x.Photos)
+                                        .FirstOrDefaultAsync(u => u.UserName == _userAccessor.GetCurrentUsername());
 
                 if (user == null)
-                    throw new RestException(HttpStatusCode.BadRequest, new { User = "No login User found."});
+                    throw new RestException(HttpStatusCode.BadRequest, new { User = "No login User found." });
 
-                return new User() {
+                return new User()
+                {
                     Username = user.UserName,
                     DisplayName = user.DisplayName,
                     Token = _jwtGenerator.CreateToken(user),

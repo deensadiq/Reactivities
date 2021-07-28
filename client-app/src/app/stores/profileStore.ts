@@ -50,14 +50,14 @@ export default class ProfileStore {
         this.profile!.displayName = profile.displayName;
         this.profile!.bio = profile.bio;
         this.loadingUpdateProfile = false;
-      })
-    } catch(error) {
+      });
+    } catch (error) {
       console.log(error);
       runInAction(() => {
         this.loadingUpdateProfile = false;
-      })
+      });
     }
-  }
+  };
 
   @action uploadPhoto = async (file: Blob) => {
     this.uploadingPhoto = true;
@@ -66,59 +66,61 @@ export default class ProfileStore {
       runInAction(() => {
         this.uploadingPhoto = false;
         if (this.profile) {
-          this.profile.photos.push(photo);
+          this.profile.photos!.push(photo);
           if (photo.isMain && this.rootStore.userStore.user) {
             this.rootStore.userStore.user.image = photo.url;
             this.profile.image = photo.url;
           }
         }
         this.uploadingPhoto = false;
-      })
+      });
     } catch (error) {
       console.log(error);
       toast.error("Problem uploading photo");
       runInAction(() => {
         this.uploadingPhoto = false;
-      })
+      });
     }
-  }
+  };
 
-@action deletePhoto = async (photoId: string) => {
+  @action deletePhoto = async (photoId: string) => {
     this.deletingPhoto = true;
     try {
       await agent.Profiles.deletePhoto(photoId);
       runInAction(() => {
         if (this.profile) {
-          this.profile!.photos = this.profile!.photos.filter((a) => a.id !== photoId);
+          this.profile!.photos = this.profile!.photos!.filter(
+            (a) => a.id !== photoId
+          );
           this.deletingPhoto = false;
         }
-      })
-    } catch(error) {
+      });
+    } catch (error) {
       console.log(error);
       toast.error("Error deleting photo");
       runInAction(() => {
         this.deletingPhoto = false;
-      })
+      });
     }
-  }
+  };
 
   @action setMainPhoto = async (photo: IPhoto) => {
-      this.loading = true;
-      try {
-        await agent.Profiles.setMainPhoto(photo.id);
-        runInAction(() => {
-          this.rootStore.userStore.user!.image = photo.url;
-          this.profile!.photos.find(a => a.isMain)!.isMain = false;
-          this.profile!.photos.find(a => a.id === photo.id)!.isMain = true;
-          this.profile!.image = photo.url;
-          this.loading = false;
-        })
-      } catch(error) {
-        toast.error("Problem setting main photo.");
-        console.log(error);
-        runInAction(() => {
-          this.loading = false;
-        })
-      }
-  }
+    this.loading = true;
+    try {
+      await agent.Profiles.setMainPhoto(photo.id);
+      runInAction(() => {
+        this.rootStore.userStore.user!.image = photo.url;
+        this.profile!.photos!.find((a) => a.isMain)!.isMain = false;
+        this.profile!.photos!.find((a) => a.id === photo.id)!.isMain = true;
+        this.profile!.image = photo.url;
+        this.loading = false;
+      });
+    } catch (error) {
+      toast.error("Problem setting main photo.");
+      console.log(error);
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  };
 }
