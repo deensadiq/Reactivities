@@ -1,5 +1,5 @@
 import { PagingParams } from "./../models/pagination";
-import { observable, action, computed, runInAction } from "mobx";
+import { observable, action, computed, runInAction, reaction } from "mobx";
 import { SyntheticEvent } from "react";
 import { IActivity } from "../models/activity";
 import agent from "../api/agent";
@@ -18,10 +18,24 @@ export default class ActivityStore {
   rootStore: RootStore;
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
+
+    runInAction(() => {
+      this.predicate.set("all", "true");
+    });
+
+    reaction(
+      () => this.predicate.keys(),
+      () => {
+        this.pagingParams = new PagingParams();
+        this.activityRegistry.clear();
+        this.loadAcivities();
+      }
+    );
   }
 
   @observable activityRegistry = new Map();
   @observable loadingInitial = false;
+  @observable loadingActivity = false;
   @observable activity: IActivity | null = null;
   @observable submitting = false;
   @observable target = "";
@@ -29,6 +43,7 @@ export default class ActivityStore {
   @observable.ref hubConnection: HubConnection | null = null;
   @observable pagination: Pagination | null = null;
   @observable pagingParams = new PagingParams();
+  @observable predicate = new Map();
 
   @action createHubConnection = (activityId: string) => {
     this.hubConnection = new HubConnectionBuilder()
@@ -55,6 +70,7 @@ export default class ActivityStore {
 
     this.hubConnection.on("Send", (message) => {
       toast.info(message);
+      console.log(message);
     });
   };
 
@@ -89,10 +105,46 @@ export default class ActivityStore {
     this.pagingParams = pagingParams;
   };
 
+  @action setPredicate = (predicate: string, value: string | Date) => {
+    const resetPredicate = () => {
+      this.predicate.forEach((value, key) => {
+        if (key !== "startDate") {
+          this.predicate.delete(key);
+        }
+      });
+    };
+
+    switch (predicate) {
+      case "all":
+        resetPredicate();
+        this.predicate.set(predicate, value);
+        break;
+      case "isGoing":
+        resetPredicate();
+        this.predicate.set(predicate, value);
+        break;
+      case "isHost":
+        resetPredicate();
+        this.predicate.set(predicate, value);
+        break;
+      case "startDate":
+        this.predicate.delete("startDate");
+        this.predicate.set(predicate, value);
+        break;
+    }
+  };
+
   @computed get axiosParams() {
     const params = new URLSearchParams();
     params.append("pageNumber", this.pagingParams.pageNumber.toString());
     params.append("pageSize", this.pagingParams.pageSize.toString());
+    this.predicate.forEach((value, key) => {
+      if (key === "startDate") {
+        params.append(key, (value as Date).toISOString());
+      } else {
+        params.append(key, value);
+      }
+    });
     return params;
   }
 
@@ -137,19 +189,19 @@ export default class ActivityStore {
       this.activity = activity;
       return activity;
     } else {
-      this.loadingInitial = true;
+      this.loadingActivity = true;
       try {
         activity = await agent.Activities.details(id);
         runInAction("loading activity", () => {
           setActivityProps(activity, this.rootStore.userStore.user!);
           this.activityRegistry.set(activity.id, activity);
           this.activity = activity;
-          this.loadingInitial = false;
+          this.loadingActivity = false;
           return activity;
         });
       } catch (error) {
         runInAction("load activity error", () => {
-          this.loadingInitial = false;
+          this.loadingActivity = false;
         });
         console.log(error);
       }

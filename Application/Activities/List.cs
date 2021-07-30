@@ -7,6 +7,7 @@ using Application.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.Activities
@@ -34,23 +35,24 @@ namespace Application.Activities
             {
                 var currentUsername = _userAccessor.GetCurrentUsername();
 
-                var query = _context.Activities
+                var query = await _context.Activities
                                     .Where(a => a.Date >= request.Params.StartDate)
                                     .OrderBy(c => c.Date)
                                     .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider, new { currentUsername })
-                                    .AsQueryable();
+                                    .ToListAsync();
+
 
                 if (request.Params.IsGoing && !request.Params.IsHost)
                 {
-                    query = query.Where(x => x.UserActivities.Any(a => a.Username == currentUsername));
+                    query = query.Where(x => x.UserActivities.Any(a => a.Username == currentUsername)).ToList();
                 }
 
                 if (request.Params.IsHost && !request.Params.IsGoing)
                 {
-                    query = query.Where(x => x.HostUsername == currentUsername);
+                    query = query.Where(x => x.UserActivities.Any(a => a.Username == currentUsername && a.IsHost)).ToList();
                 }
 
-                return await PageList<ActivityDto>.CreateAsync(query, request.Params.PageNumber, request.Params.PageSize);
+                return PageList<ActivityDto>.CreateAsync(query, request.Params.PageNumber, request.Params.PageSize);
             }
         }
     }

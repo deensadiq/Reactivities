@@ -9,7 +9,12 @@ interface IProp {
 const ProfileCard: React.FC<IProp> = ({ attendee }) => {
   return (
     <Card>
-      <Image src={attendee.image || "/assets/user.png"} wrapped ui={false} />
+      <Image
+        size="small"
+        src={attendee.image || "/assets/user.png"}
+        wrapped
+        ui={false}
+      />
       <Card.Content>
         <Card.Header>{attendee.displayName}</Card.Header>
         <Card.Description>
@@ -17,7 +22,7 @@ const ProfileCard: React.FC<IProp> = ({ attendee }) => {
         </Card.Description>
       </Card.Content>
       <Card.Content extra>
-        <a href="#">
+        <a href={`/profiles/${attendee.username}`}>
           <Icon name="user" />
           {attendee.followersCount} Followers
         </a>

@@ -17,7 +17,6 @@ const ActivityListItemAttendees: React.FC<IProps> = ({ attendees }) => {
       {attendees.map((attendee) => (
         <List.Item key={attendee.username}>
           <Popup
-            header={attendee.displayName}
             position="top left"
             size="small"
             trigger={
@@ -28,11 +27,14 @@ const ActivityListItemAttendees: React.FC<IProps> = ({ attendees }) => {
                 style={attendee.following ? styles : null}
               />
             }
-          >
-            <Popup.Content>
-              <ProfileCard attendee={attendee} />
-            </Popup.Content>
-          </Popup>
+            on="hover"
+            header={attendee.displayName}
+            content={
+              <Popup.Content>
+                <ProfileCard attendee={attendee} />
+              </Popup.Content>
+            }
+          />
         </List.Item>
       ))}
     </List>

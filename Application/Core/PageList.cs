@@ -21,13 +21,11 @@ namespace Application.Core
         public int TotalPages { get; set; }
         public int PageSize { get; set; }
         public int TotalCount { get; set; }
-        public string SortField { get; set; }
-        public string SortOrder { get; set; }
 
-        public static async Task<PageList<T>> CreateAsync(IQueryable<T> source, int pageNumber, int pageSize)
+        public static PageList<T> CreateAsync(IEnumerable<T> source, int pageNumber, int pageSize)
         {
-            var count = await source.CountAsync();
-            var items = await source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            var count = source.Count();
+            var items = source.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
             return new PageList<T>(items, pageNumber, pageSize, count);
         }

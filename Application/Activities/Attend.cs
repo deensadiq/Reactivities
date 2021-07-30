@@ -33,7 +33,7 @@ namespace Application.Activities
                 var activity = await _context.Activities.FindAsync(request.Id);
 
                 if (activity == null)
-                    throw new RestException(HttpStatusCode.NotFound, new { Activity = "Activity can not be found."});
+                    throw new RestException(HttpStatusCode.NotFound, new { Activity = "Activity can not be found." });
 
                 var user = await _context.Users.SingleOrDefaultAsync(u => u.UserName == _userAccessor.GetCurrentUsername());
 
@@ -41,9 +41,10 @@ namespace Application.Activities
                         .SingleOrDefaultAsync(ua => ua.AppUserId == user.Id && ua.ActivityId == activity.Id);
 
                 if (attendance != null)
-                    throw new RestException(HttpStatusCode.BadRequest, new { Attendance = "Already attending this activity."});
+                    throw new RestException(HttpStatusCode.BadRequest, new { Attendance = "Already attending this activity." });
 
-                attendance = new UserActivity() {
+                attendance = new UserActivity()
+                {
                     AppUser = user,
                     Activity = activity,
                     DateJoined = DateTime.Now,
