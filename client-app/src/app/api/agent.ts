@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { IUser, IUserFormValues } from "../models/user";
 import { IPhoto, IProfile, IProfileFormValues } from "../models/profile";
 import { PaginatedResult } from "../models/pagination";
+import IUserActivity from "../models/UserActivity";
 
 axios.defaults.baseURL = "http://localhost:5000/api";
 
@@ -119,6 +120,14 @@ const Profiles = {
     requests.postForm(`/photos`, photo),
   deletePhoto: (id: string) => requests.delete(`/photos/${id}`),
   setMainPhoto: (id: string) => requests.post(`/photos/${id}/setmain`, {}),
+  activityList: (
+    username: string,
+    params: URLSearchParams
+  ): Promise<IUserActivity[]> =>
+    axios
+      .get(`/profiles/${username}/activities`, { params })
+      .then(sleep(1000))
+      .then(responseBody),
 };
 
 export default {

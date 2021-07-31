@@ -1,6 +1,7 @@
 using System.Linq;
 using Application.Activities.Dtos;
 using Application.Comments;
+using Application.Profiles.Dtos;
 using AutoMapper;
 using Domain;
 
@@ -12,6 +13,8 @@ namespace Application.Core
         {
             string currentUsername = null;
             CreateMap<Activity, ActivityDto>()
+            .ForMember(d => d.HostUsername, o => o.MapFrom(s => s.UserActivities!.FirstOrDefault(x => x.IsHost)!.AppUser!.UserName));
+            CreateMap<Activity, UserActivityDto>()
             .ForMember(d => d.HostUsername, o => o.MapFrom(s => s.UserActivities!.FirstOrDefault(x => x.IsHost)!.AppUser!.UserName));
             CreateMap<UserActivity, AttendeeDto>()
             .ForMember(d => d.Username, o => o.MapFrom(s => s.AppUser!.UserName))

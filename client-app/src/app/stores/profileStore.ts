@@ -1,13 +1,29 @@
-import { action, computed, observable, runInAction } from "mobx";
+import { action, computed, observable, reaction, runInAction } from "mobx";
 import { toast } from "react-toastify";
 import agent from "../api/agent";
 import { IPhoto, IProfile, IProfileFormValues } from "../models/profile";
+import IUserActivity from "../models/UserActivity";
 import RootStore from "./rootStore";
 
 export default class ProfileStore {
   rootStore: RootStore;
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
+
+    runInAction(() => {
+      this.predicate.set("futureEvents", "true");
+    });
+
+    reaction(
+      () => this.predicate.keys(),
+      () => {
+        this.UserActivityRegistry.clear();
+        this.loadingUserActivities = false;
+        if (!!this.profile) {
+          this.loadUserActivities(this.profile?.username);
+        }
+      }
+    );
   }
 
   @observable profile: IProfile | null = null;
@@ -16,6 +32,21 @@ export default class ProfileStore {
   @observable uploadingPhoto = false;
   @observable deletingPhoto = false;
   @observable loading = false;
+  @observable UserActivityRegistry = new Map();
+  @observable predicate = new Map();
+  @observable loadingUserActivities = false;
+
+  @computed get axiosParams() {
+    const params = new URLSearchParams();
+    this.predicate.forEach((value, key) => {
+      params.append(key, value);
+    });
+    return params;
+  }
+
+  @computed get UserActivitiesByDate() {
+    return Array.from<IUserActivity>(this.UserActivityRegistry.values());
+  }
 
   @computed get IsCurrentUser() {
     if (this.rootStore.userStore.user && this.profile) {
@@ -24,6 +55,29 @@ export default class ProfileStore {
       return false;
     }
   }
+
+  @action setPredicate = (predicate: string, value: string) => {
+    const reSetPredicate = () => {
+      this.predicate.forEach((value, key) => {
+        this.predicate.delete(key);
+      });
+    };
+
+    switch (predicate) {
+      case "futureEvents":
+        reSetPredicate();
+        this.predicate.set(predicate, value);
+        break;
+      case "pastEvents":
+        reSetPredicate();
+        this.predicate.set(predicate, value);
+        break;
+      case "isHost":
+        reSetPredicate();
+        this.predicate.set(predicate, value);
+        break;
+    }
+  };
 
   @action loadProfile = async (username: string) => {
     this.loadingProfile = true;
@@ -120,6 +174,27 @@ export default class ProfileStore {
       console.log(error);
       runInAction(() => {
         this.loading = false;
+      });
+    }
+  };
+
+  @action loadUserActivities = async (username: string) => {
+    this.loadingUserActivities = true;
+    try {
+      let userActivities = await agent.Profiles.activityList(
+        username,
+        this.axiosParams
+      );
+      runInAction(() => {
+        userActivities.forEach((userActivity) => {
+          this.UserActivityRegistry.set(userActivity.id, userActivity);
+        });
+        this.loadingUserActivities = false;
+      });
+    } catch (error) {
+      console.log(error);
+      runInAction(() => {
+        this.loadingUserActivities = false;
       });
     }
   };

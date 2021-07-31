@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import React, { useContext } from "react";
 import Calendar from "react-calendar";
 import { Header, Menu } from "semantic-ui-react";
-import RootStore, { RootStoreContext } from "../../../app/stores/rootStore";
+import { RootStoreContext } from "../../../app/stores/rootStore";
 
 const ActivityFilter = () => {
   const rootStore = useContext(RootStoreContext);
