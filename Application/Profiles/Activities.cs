@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Core;
 using Application.Profiles.Dtos;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -49,6 +50,7 @@ namespace Application.Profiles
                 if (request.Params.IsHost && !request.Params.FutureEvents && !request.Params.PastEvents)
                 {
                     activities = activities.Where(a => a.HostUsername == request.Username).ToList();
+                    // activities = DynamicFilter<UserActivityDto>.FilterBy(activities, "HostUsername", request.Username, "equalTo").ToList();
                 }
 
                 return activities;
